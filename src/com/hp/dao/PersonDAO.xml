@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace:映射文件的命名空间：规范是映射文件的全路径-->
+<!--作用：是一个路径，用来查找下面的id-->
+<mapper namespace="com.hp.dao.PersonDao">
+    <resultMap id="BaseResultMap" type="com.hp.bean.Person">
+        <!--数据库中的字段   实体类中的字段-->
+        <!--id只有一个-->
+        <!--column是数据库中的列名-->
+        <!--property是实体类中的属性 一般是驼峰-->
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="gender" property="gender"/>
+        <result column="birthday" property="birthday"/>
+        <result column="address" property="address"/>
+        <result column="score" property="score"/>
+    </resultMap>
+    <!--sql片段-->
+    <sql id="allColumn">
+        id,name,gender,birthday,address
+    </sql>
+
+    <!--隐藏生日的 sql片段-->
+    <sql id="birthdayColumn">
+        id,name,gender,address
+    </sql>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select * from person
+    </select>
+
+    <!--SQL语句中携带带参数 其实就是指 where 语句 parameterType参数的类型-->
+    <!--select * from person where gender = 2-->
+    <select id="selectPersonBySex" resultMap="BaseResultMap" parameterType="int">
+        select <include refid="birthdayColumn"/> from person where gender = #{sex}
+    </select>
+
+    <!--查总条数 select count(*) from person-->
+    <select id="selectCount" resultType="long">
+        select count(*) from person
+    </select>
+
+    <!--当前端传来多个参数的时候 你需要看参数是否是同一个类中的属性 如果是就用这个类做参数
+    如果不是（多表） 可以手写一个参数的实体类（DTO）或者使用map做参数
+    查询女生总条数 select count(*) from person where sex=2 and score>100-->
+    <select id="selectCountByParam01" resultType="long" parameterType="com.hp.bean.Person">
+        select count(*) from person where gender=#{gender} and score> #{score}
+    </select>
+
+    <!--查询年龄小于2020-09-07的女生-->
+    <!--select * from person gender=#{gender} and birthday>=#{birthday}-->
+    <select id="selectCountByParam02" resultMap="BaseResultMap" parameterType="map">
+        <![CDATA[select * from person where gender=#{gender} and birthday < #{birthday}]]>
+    </select>
+
+    <!--查询最高分的人-->
+    <!--select * from where mix(score)-->
+    <select id="selectByScore" resultMap="BaseResultMap">
+      select * from person where score=(select max(score) from person)
+    </select>
+
+    <!--所有男生和女生的平均分值各是多少 ？-->
+    <!--select avg(score) from person group by gender-->
+    <select id="selectavgscore" resultType="com.hp.bean.PersonDto">
+        select gender,avg(score) as avgscore from person group by gender
+    </select>
+
+    <!--所有人的分数大于100的或者性别是1的-->
+    <select id="selectsexByScore" resultMap="BaseResultMap" parameterType="map">
+      select * from person where gender=#{gender} and score > #{score}
+    </select>
+
+    <!--所有男生和女生的平均分值大于200的-->
+    <select id="selectavgscore2" resultType="com.hp.bean.PersonDto" parameterType="int">
+    select gender,avg(score) as avgscore from person group by gender having avg(score) > #{score}
+    </select>
+
+    <!--map可以接受任何数据常见于多表联查-->
+    <select id="selectavgscore3" resultType="map" parameterType="int">
+    select gender,avg(score) as avgscore from person group by gender having avg(score) > #{score}
+    </select>
+
+    <!--//查询性孙的  模糊查询 3种方式-->
+    <!--select * from person where name like '孙%'-->
+    <!--拼接型 这样不好 sql编译时没有问号 容易被黑客注入-->
+    <select id="selectlike" resultMap="BaseResultMap" parameterType="string">
+        select * from person where name like '${name}%'
+    </select>
+
+    <!--第二种方式 使用concat链接  可以编译的 可以用-->
+    <select id="selectlike2" resultMap="BaseResultMap" parameterType="string">
+        select * from person where name like concat ('%',#{name},'%')
+    </select>
+
+    <!--第三种方式 常用-->
+    <select id="selectlike3" resultMap="BaseResultMap" parameterType="string">
+        select * from person where name like "%"#{name}"%"
+    </select>
+
+
+    <!--增加一条数据-->
+    <insert id="insertPerson" parameterType="com.hp.bean.Person">
+        insert into person (null,#{name},#{gender},#{birthday},#{address},#{score})
+    </insert>
+</mapper>

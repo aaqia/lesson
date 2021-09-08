@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace:映射文件的命名空间：规范是映射文件的全路径-->
+<!--作用：是一个路径，用来查找下面的id-->
+<mapper namespace="com.hp.dao.StudentDao">
+
+    <!--select s.*,s1.s_score score1,s2.s_score score2 from student s,score s1,score s2 -->
+    <!--where s.s_id=s1.s_id and s.s_id=s2.s_id and s1.c_id=01 and s2.c_id=02 and s1.s_score>s2.s_score;-->
+    <select id="select1" resultType="Map" parameterType="map">
+        select s.*,s1.s_score score1,s2.s_score score2 from student s,score s1,score s2
+        where s.s_id = s1.s_id and s.s_id = s2.s_id and s1.c_id = #{cid1} and s2.c_id = #{cid2} and s1.s_score > s2.s_score
+    </select>
+
+    <!--select s.*,s1.s_score score1,s2.s_score score2 from student s,score s1,score s2 -->
+    <!--where s.s_id=s1.s_id and s.s_id=s2.s_id and s1.c_id=01 and s2.c_id=02 and s1.s_score<s2.s_score;-->
+    <select id="select2" resultType="Map" parameterType="map">
+        <![CDATA[select s.*,s1.s_score score1,s2.s_score score2 from student s,score s1,score s2
+        where s.s_id = s1.s_id and s.s_id = s2.s_id and s1.c_id = #{cid1} and s2.c_id = #{cid2} and s1.s_score < s2.s_score]]>
+    </select>
+
+    <!--select s1.s_id,s1.s_name,avg(s2.s_score) from student s1 join score s2 on s1.s_id=s2.s_id group by s1.s_id having avg(s2.s_score)>60;-->
+    <select id="select3" resultType="Map" parameterType="map">
+      select s1.s_id,s1.s_name,avg(s2.s_score) as avgscore from student s1 join score s2 on s1.s_id=s2.s_id group by s1.s_id having avg(s2.s_score)> #{avgscore}
+    </select>
+
+    <!--select s1.s_id,s1.s_name,avg(s2.s_score) from student s1 join score s2 on s1.s_id=s2.s_id group by s1.s_id having avg(s2.s_score)<60;-->
+    <select id="select4" resultType="Map" parameterType="map">
+        <![CDATA[select s1.s_id,s1.s_name,avg(s2.s_score) as avgscore from student s1 join score s2 on s1.s_id=s2.s_id group by s1.s_id having avg(s2.s_score)< #{avgscore}]]>
+    </select>
+
+    <!--select s1.s_id,s1.s_name,count(s2.c_id) as 选课总数,sum(s2.s_score) as 课程总成绩 from student s1 join score s2 on s1.s_id=s2.s_id group by s1.s_id;-->
+    <select id="select5" resultType="Map">
+        select s1.s_id,s1.s_name,count(s2.c_id) as 选课总数,sum(s2.s_score) as 课程总成绩 from student s1 join score s2 on s1.s_id=s2.s_id group by s1.s_id;
+    </select>
+
+    <!--select count(t_name) from teacher where t_name like '李%';-->
+    <select id="select6" resultType="Map" parameterType="string">
+        select count(t_name) from teacher where t_name like "%"#{name}"%"
+    </select>
+
+    <!--select s.* from student s,teacher t,course c,score s1
+    where s.s_id=s1.s_id and s1.c_id=c.c_id and c.t_id=t.t_id and t.t_name='张三'-->
+    <select id="select7" resultType="Map" parameterType="string">
+        select s.* from student s,teacher t,course c,score s1 where s.s_id=s1.s_id and s1.c_id=c.c_id and c.t_id=t.t_id and t.t_name = #{name}
+    </select>
+
+    <!--select s.* from student s,teacher t,course c,score s1
+    where s.s_id=s1.s_id and s1.c_id=c.c_id and c.t_id=t.t_id and t.t_name!='张三'-->
+    <select id="select8" resultType="Map" parameterType="string">
+        select s.* from student s,teacher t,course c,score s1 where s.s_id=s1.s_id and s1.c_id=c.c_id and c.t_id=t.t_id and t.t_name != #{name}
+    </select>
+
+    <!--select s.* from student s,score s1,score s2 where s.s_id=s1.s_id and s1.c_id=s2.s_id and s1.c_id=01 and s2.c_id=02;-->
+    <select id="select9" resultType="Map" parameterType="map">
+        select s.* from student s,score s1,score s2 where s.s_id=s1.s_id and s1.c_id=s2.s_id and s1.c_id=#{cid1} and s2.c_id=#{cid2}
+    </select>
+    <!--select s.* from student s,score s1,score s2 where s.s_id=s1.s_id and s1.c_id=s2.s_id and s1.c_id=01 and s2.c_id!=02;-->
+    <select id="select10" resultType="Map" parameterType="map">
+        select s.* from student s,score s1,score s2 where s.s_id=s1.s_id and s1.c_id=s2.s_id and s1.c_id=#{cid1} and s2.c_id!=#{cid2}
+    </select>
+
+
+
+
+
+
+
+
+
+
+</mapper>
